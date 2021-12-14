@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+
+<head>
+	<meta content="width=device-width,initial-scale=1" />
+	<style>
+		@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+		@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+		* {
+			font-family: 'Roboto';
+		}
+
+		body {
+			background-image: radial-gradient(#eee, #fff 127%);
+		}
+
+		@media (pointer:coarse) {
+			body {
+				zoom: 250%
+			}
+		}
+
+		#card-table {
+			position: relative;
+			border-collapse: collapse;
+			width: min(300pt, 86%);
+			margin: 30pt auto;
+			display: table;
+			flex-wrap: wrap;
+		}
+
+		#card-table>thead>tr>* {
+			font-weight: 500;
+		}
+
+		#card-table>tbody {
+			margin-top: 0;
+		}
+
+		#card-table>*>tr {
+			border: 1pt double lightgrey;
+			padding: 7pt 0;
+		}
+
+		#card-table>*>tr>* {
+			background-color: white;
+			height: 25pt;
+		}
+
+		#card-table>*>tr>.refresh {
+			padding-top: 0;
+			width: 30pt;
+			text-align: center;
+		}
+
+		#card-table>*>tr>.refresh>a {
+			font-family: 'Material Icons';
+			margin-top: .5pt;
+			display: block;
+		}
+
+		#card-table>*>tr>.table {
+			text-align: left;
+		}
+
+		#card-table>*>tr>.pin {
+			text-align: right;
+			width: 40pt;
+		}
+
+		#card-table>*>tr>.time {
+			text-align: right;
+			padding-right: 15pt;
+		}
+	</style>
+</head>
+
+<body>
+	<table id='card-table'>
+		<thead>
+			<tr>
+				<th class='refresh'></th>
+				<th class='table'>Table No.</th>
+				<th class='pin'>PIN</th>
+				<th class='time'>Last Modified</th>
+			</tr>
+		</thead>
+		<tbody>
+	</table>
+	<script>
+		function setRow(d, info) {
+			let [r, a, c1, c2, c3, c4] = d[info.tble]
+			if (info.code) {
+				c3.innerText = info.code;
+				c4.innerText = new Date(info.time).toISOString().substr(11, 5)
+				c3.animate([{ color: '#f00d1e' }, { color: 'black' }], 666)
+			} else {
+				c3.innerText = c4.innerText = ''
+			}
+		}
+
+		const elemDict = {}
+		const t = document.getElementById('card-table')
+		fetch('/ls_tbles').then(async r => {
+			let j = await r.json()
+			for (let info of j) {
+				let r = document.createElement('tr')
+				let a = document.createElement('a')
+				let c1 = document.createElement('td')
+				let c2 = document.createElement('td')
+				let c3 = document.createElement('td')
+				let c4 = document.createElement('td')
+				let elems = [r, a, c1, c2, c3, c4]
+				elemDict[info.tble] = elems
+				setRow(elemDict, info)
+				c1.className = 'refresh'
+				c2.className = 'table'
+				c3.className = 'pin'
+				c4.className = 'time'
+
+				a.onclick = async () => {
+					var r = await fetch(`/gen_code?tble=${info.tble}`, { method: 'POST' })
+					for (let i of await r.json()) setRow(elemDict, i)
+				}
+				a.innerText = 'refresh'
+				c2.innerText = info.tble
+				c1.append(a)
+				r.append(c1, c2, c3, c4)
+				t.lastElementChild.append(r)
+			}
+		})
+	</script>
+</body>

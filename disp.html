@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+
+<head>
+	<meta content="width=device-width,initial-scale=1" />
+	<style>
+		@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+		@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+		* {
+			font-family: monospace;
+		}
+
+		@media (pointer:coarse) {
+			body {
+				zoom: 150%
+			}
+		}
+
+		#display {
+			display: flex;
+			padding: 30pt 30pt 100pt;
+			align-content: flex-start;
+			flex-direction: column;
+			box-sizing: border-box;
+			overflow-x: scroll;
+			flex-wrap: wrap;
+			position: fixed;
+			height: 100%;
+			width: 100%;
+		}
+
+		#display>* {
+			width: min(calc(36vw - 50pt), 200pt);
+			box-sizing: border-box;
+			height: 30pt;
+		}
+
+		.head {
+			background-image: linear-gradient(green, darkgreen);
+			padding: 6.4pt 10pt;
+		}
+
+		.head.late {
+			background-image: linear-gradient(red, darkred);
+		}
+
+		.head.ubmp {
+			background-image: linear-gradient(lightseagreen, darkcyan);
+		}
+
+		.item.sel {
+			background-image: linear-gradient(khaki, darkkhaki);
+		}
+
+		.tble {
+			font-style: italic;
+			color: white;
+			font-size: 13pt;
+		}
+
+		.time {
+			float: right;
+			color: white;
+			font-size: 13pt;
+		}
+
+		.item {
+			font-size: 13pt;
+			padding: 6pt 10pt;
+			background-image: linear-gradient(white, #eee);
+		}
+
+		.plte-subb {
+			margin: 0 0 6pt;
+			padding: 0 0 6pt;
+			font-size: 12pt;
+		}
+
+		.plte-subb:not(:last-child) {
+			border-bottom: solid 1pt lightgrey;
+		}
+
+		#footer {
+			justify-content: space-between;
+			background-color: #eee;
+			box-sizing: border-box;
+			padding: 5pt 20%;
+			position: fixed;
+			display: flex;
+			width: 100%;
+			height: 40pt;
+			bottom: 0;
+		}
+
+		#footer>button {
+			font-size: 13pt;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="display">
+	</div>
+	<footer id="footer">
+		<button message="bump0">Bump #1</button>
+		<button message="bump1">Bump #2</button>
+		<button message="bump2">Bump #3</button>
+		<button message="bump3">Bump #4</button>
+		<button message="bump4">Bump #5</button>
+		<button message="unbump">Recall</button>
+	</footer>
+	<script>
+		const pnel_lst = []
+		const time_lst = []
+
+		function createPnels(ordr) {
+			var ps = []
+			function clk() {
+				if (ps[0].classList.contains('sel'))
+					for (let p of ps) p.classList.remove('sel')
+				else for (let p of ps) p.classList.add('sel')
+			}
+			function dbl(event) {
+				event.stopPropagation()
+				var i = pnel_lst.indexOf(ps)
+				ws.send(`bump${i}`)
+			}
+
+			var plte = ordr.plte
+			var head = document.createElement('div')
+			var time = document.createElement('div')
+			var tble = document.createElement('div')
+			tble.innerText = `Table #${ordr.tble}`
+			head.className = 'head'
+			time.className = 'time'
+			tble.className = 'tble'
+			head.append(time, tble)
+			head.ondblclick = dbl
+			head.onclick = clk
+			ps.push(head)
+
+			for (let [n, c] of Object.entries(plte)) {
+				var i = document.createElement('div')
+				i.innerText = `[${c}] ${n}`
+				i.className = 'item'
+				i.ondblclick = dbl
+				i.onclick = clk
+				ps.push(i)
+			}
+			var b = document.createElement('div')
+			b.className = 'bffr'
+			ps.push(b)
+			return ps
+		}
+
+		function tick(lst_idx) {
+			if (time_lst[lst_idx] === undefined) return
+			var e = pnel_lst[lst_idx][0].getElementsByClassName('time')[0]
+			var t = ++time_lst[lst_idx], m = ~~(t / 60), s = ('' + t % 60).padStart(2, 0)
+			if (t == 5 * 60) pnel_lst[lst_idx][0].className.add('late')
+			e.innerText = `${m}:${s}`
+		}
+
+		function add(ordr) {
+			var ps = createPnels(ordr)
+			var i = pnel_lst.push(ps)
+			time_lst.push(0)
+			for (let p of ps)
+				disp.append(p)
+			tick(i - 1)
+		}
+
+		function bump(idx) {
+			time_lst.splice(idx, 1)
+			for (let p of pnel_lst.splice(idx, 1)[0]) p.remove()
+		}
+
+		function ubmp(ordr) {
+			var ps = createPnels(ordr)
+			ps[0].classList.add('ubmp')
+			time_lst.unshift(undefined)
+			pnel_lst.unshift(ps)
+			for (let p of ps.reverse())
+				disp.prepend(p)
+			tick(0)
+		}
+
+		setInterval(() => {
+			for (let i in pnel_lst) tick(i)
+		}, 1000)
+
+		const req = new XMLHttpRequest()
+		const disp = document.getElementById('display')
+		const foot = document.getElementById('footer')
+		req.open('GET', document.location, false)
+		req.send(null)
+
+		const code = req.getResponseHeader('auth-code')
+		const ws = new WebSocket('ws://localhost:8081')
+		ws.onopen = () => ws.send(code)
+
+		ws.onmessage = (e) => {
+			var d = JSON.parse(e.data)
+			var adds = d.adds, idxs = d.idxs
+			for (let c = 0; c < adds.length || c < idxs.length; c++) {
+				if (!adds[c]) bump(idxs[c])
+				else if (idxs[c] == undefined) add(adds[c])
+				else if (idxs[c] == 0) ubmp(adds[c])
+			}
+		}
+
+		for (let n of foot.childNodes)
+			n.onclick = () => ws.send(n.getAttribute('message'))
+	</script>
+</body>

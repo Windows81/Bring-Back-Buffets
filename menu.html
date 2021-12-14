@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<head>
+	<meta content="width=device-width,initial-scale=1" />
+	<style>
+		@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+		@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
+
+		* {
+			font-family: 'Roboto';
+		}
+
+		@media (pointer:coarse) {
+			body {
+				zoom: 150%
+			}
+		}
+
+		button {
+			border: none;
+		}
+
+		.overlay {
+			top: 0;
+			z-index: 10;
+			width: 100%;
+			height: 100%;
+			display: flex;
+			position: fixed;
+			align-items: center;
+			justify-content: center;
+			transition: opacity 666ms;
+		}
+
+		body .overlay.invisible {
+			pointer-events: none;
+			opacity: 0;
+		}
+
+		#code-overlay {
+			background-image: radial-gradient(#eee, #fff 127%);
+		}
+
+		#code-overlay>div {
+			width: 300pt;
+			background-color: white;
+			box-shadow: 0 0 7pt #00000040;
+			border-radius: 3pt;
+			padding: 10pt;
+			font-size: 16pt;
+		}
+
+		.stp-button {
+			border: none;
+			color: white;
+			padding: 4pt 10pt;
+			text-align: center;
+			font-size: 13pt;
+			font-weight: 700;
+			box-shadow: 0 0 5pt #00000040;
+			border-radius: 3pt;
+			background-color: #f00d1e;
+		}
+
+		.stp-button:hover {
+			background-color: #cc1127;
+		}
+
+		#code-button {
+			box-shadow: 0 0 4pt #00000040;
+			margin-top: 10pt;
+			float: right;
+		}
+
+		#code-field {
+			width: 100%;
+			transition: border-color 250ms;
+			border-top-style: hidden;
+			border-right-style: hidden;
+			border-left-style: hidden;
+			border-bottom-style: solid;
+			border-bottom-width: 1.5pt;
+			border-color: gainsboro;
+			background-color: white;
+			text-transform: uppercase;
+			letter-spacing: 4pt;
+			text-align: center;
+			font-size: 60pt;
+			height: 60pt;
+		}
+
+		#code-field:placeholder-shown {
+			font-size: 16pt;
+			text-transform: none;
+			font-weight: normal;
+			color: transparent;
+			letter-spacing: 0;
+		}
+
+		#code-field:focus {
+			border-color: #f00d1e;
+			outline: none;
+		}
+
+		#code-field:invalid {
+			color: #f00d1e;
+			transition: 250ms color
+		}
+
+		#code-label {
+			transition: color 250ms;
+			font-size: 12pt;
+			margin-top: 3pt;
+			margin-left: 2pt;
+			color: #f00d1e;
+			float: left;
+		}
+
+		#plte-overlay {
+			background-color: #00000080;
+		}
+
+		#plte-overlay>div {
+			width: 300pt;
+			background-color: white;
+			box-shadow: 0 0 7pt #00000040;
+			border-radius: 3pt;
+			font-size: 16pt;
+		}
+
+		#plte-lst {
+			width: 100%;
+			border-bottom: solid 1pt lightgrey;
+			padding: 10pt 0;
+		}
+
+		.plte-item {
+			width: 100%;
+			text-align: left;
+			background-color: white;
+			padding: 6pt 13pt 7pt;
+			display: grid;
+			grid-template-columns: auto 20pt;
+		}
+
+		.plte-item:hover {
+			background-color: #eee;
+		}
+
+		.plte-name {
+			font-size: 13pt;
+		}
+
+		.plte-info {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+			font-size: 10pt;
+			display: block;
+			color: grey;
+			width: 100%;
+			grid-row: 2;
+		}
+
+		.plte-rem {
+			font-family: 'Material Icons';
+			float: right;
+			margin: auto;
+			display: block;
+			grid-column: 2;
+			grid-row: span 2;
+			width: 25pt;
+			height: 25pt;
+			font-size: 13pt;
+			border-radius: 50%;
+			box-sizing: border-box;
+			background-color: transparent;
+			padding: 0 6.5pt;
+			color: grey;
+		}
+
+		.plte-rem:hover {
+			background-color: #ddd;
+		}
+
+		#snd-button {
+			float: right;
+			margin: 7pt 10pt;
+		}
+
+		.plte-button {
+			float: right;
+			margin: 8pt -6pt 0 0;
+			border: none;
+			color: black;
+			padding: 4pt 10pt;
+			text-align: center;
+			font-size: 11pt;
+			border-radius: 3pt;
+			background-color: transparent;
+		}
+
+		.plte-button:hover {
+			color: #f00d1e;
+		}
+
+		header {
+			top: 0;
+			position: fixed;
+			height: 40pt;
+			width: 100%;
+			z-index: 2;
+			padding: 10.5pt;
+			box-sizing: border-box;
+			color: white;
+			font-weight: 500;
+			font-size: 16pt;
+			background-color: #f00d1e;
+			box-shadow: 0 0 5pt #00000080;
+			display: flex;
+		}
+
+		#back-button {
+			font-family: 'Material Icons';
+			background: none;
+			color: white;
+			font-size: 16pt;
+		}
+
+		#tble-label {
+			margin-left: 2pt;
+		}
+
+		#menu-grid {
+			width: min(1000pt, 100%);
+			justify-content: center;
+			margin: 45pt auto;
+			padding: 4pt;
+			display: flex;
+			flex-wrap: wrap;
+			box-sizing: border-box;
+		}
+
+		.menu-itm {
+			flex: 1;
+			min-width: 300pt;
+			height: 300pt;
+			padding: 4pt;
+			display: block;
+		}
+
+		.menu-ttl {
+			top: 0;
+			position: relative;
+			font-weight: 400;
+			display: block;
+			font-size: 16pt;
+			height: 20pt;
+			padding: 10pt 10pt 20pt;
+			background-image: linear-gradient(black, transparent);
+			color: white;
+		}
+
+		.menu-img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			margin-top: -50pt;
+		}
+
+		.menu-inc {
+			float: right;
+			box-shadow: 0 0 5pt #ffffff80;
+			background-color: white;
+			text-align: center;
+			border-radius: 5pt;
+			box-sizing: border-box;
+			height: 20pt;
+			vertical-align: middle;
+			display: table-cell;
+		}
+
+		.menu-cnt {
+			color: black;
+			font-size: 13pt;
+			display: inline-block;
+			font-weight: 500;
+		}
+
+		.menu-unt {
+			color: gray;
+			font-size: 10pt;
+			display: inline-block;
+			font-weight: 400;
+			margin: 0 -2pt 0 2pt;
+			font-variant: petite-caps;
+			font-style: italic;
+		}
+
+		.menu-add,
+		.menu-rem {
+			color: grey;
+			font-family: 'Material Icons';
+			outline: none;
+			border: none;
+			height: 100%;
+			width: 15pt;
+			padding: 0;
+		}
+
+		.menu-add {
+			border-left: solid 1pt darkgrey;
+			border-radius: 0 5pt 5pt 0;
+			padding-right: 2pt;
+			margin-left: 5pt;
+			float: right;
+		}
+
+		.menu-rem {
+			border-right: solid 1pt darkgrey;
+			border-radius: 5pt 0 0 5pt;
+			padding-left: 2pt;
+			margin-right: 5pt;
+			float: left;
+		}
+
+		.menu-add:focus {
+			outline: none;
+		}
+
+		footer {
+			grid-template-columns: auto 100pt;
+			box-shadow: 0 0 7pt #00000040;
+			background-color: white;
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			height: 40pt;
+			display: grid;
+		}
+
+		#chip-list {
+			overflow-x: scroll;
+			overflow-y: hidden;
+			white-space: nowrap;
+			padding: 0 10pt 0 10pt;
+		}
+
+		#chip-list::-webkit-scrollbar {
+			height: 2pt;
+		}
+
+		.chip {
+			padding: 3.4pt 10pt 0;
+			background-color: lightgrey;
+			width: fit-content;
+			border-radius: 22pt;
+			height: 22pt;
+			box-sizing: border-box;
+			display: inline-block;
+			margin: 9pt 5pt;
+		}
+
+		.chip>button {
+			outline: none;
+			border: none;
+			font-family: 'Material Icons';
+			background: none;
+			display: block;
+			float: right;
+			font-size: 14pt;
+			color: grey;
+			margin: -.5pt -10pt 0 2pt;
+		}
+
+		#nxt-button {
+			margin: auto;
+		}
+
+		#nxt-button:disabled {
+			box-shadow: none;
+			background-color: lightgrey;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="code-overlay" class="overlay">
+		<div>
+			<input id="code-field" type="tel" maxlength="4" pattern="[0-9]+" spellcheck="false"
+				placeholder="Please enter your order code." />
+			<div id="code-label" hidden>Invalid order code</div>
+			<button id="code-button" class="stp-button">NEXT</button>
+		</div>
+	</div>
+	<div id="plte-overlay" class="overlay invisible">
+		<div>
+			<div id="plte-lst"></div>
+			<button id="snd-button" class="stp-button">SEND</button>
+			<button id="add-button" class="plte-button">ADD</button>
+			<button id="clr-button" class="plte-button">CLEAR</button>
+		</div>
+	</div>
+	<header><button id="back-button">lock</button><span id="tble-label"></span></header>
+	<div id="menu-grid"></div>
+	<footer>
+		<div id="chip-list"></div>
+		<button id="nxt-button" class="stp-button">NEXT</button>
+	</footer>
+	<script>
+		const ordr_data = { pltes: {}, tble: '' }
+		var plte_idx, nxt_plte
+		const chip_dct = {}
+		const elem_dct = {}
+		const plte_dct = {}
+		const info_lst = []
+
+		const tlbl = document.getElementById('tble-label')
+		const grid = document.getElementById('menu-grid')
+		const chps = document.getElementById('chip-list')
+		const nxtb = document.getElementById('nxt-button')
+		const sndb = document.getElementById('snd-button')
+		const addb = document.getElementById('add-button')
+		const clrb = document.getElementById('clr-button')
+
+		const cdo = document.getElementById('code-overlay')
+		const cdf = document.getElementById('code-field')
+		const cdl = document.getElementById('code-label')
+		const cdb = document.getElementById('code-button')
+		const bkb = document.getElementById('back-button')
+
+		const plo = document.getElementById('plte-overlay')
+		const pls = document.getElementById('plte-lst')
+
+		function showQuantity(info, v) {
+			var n = info.shortname
+			var cnt = elem_dct[n][3]
+			if (info.limit && v > info.limit)
+				cnt.animate([{ color: '#f00d1e', offset: 0 }], 666)
+			else if (v >= 0) {
+				cnt.innerText = v
+				if (n in chip_dct) {
+					if (!v) {
+						chip_dct[n]
+						chip_dct[n].remove()
+						delete chip_dct[n]
+					}
+				} else if (v) {
+					nxtb.disabled = false
+					let b = document.createElement('button')
+					let c = chip_dct[n] = document.createElement('div')
+					b.onclick = () => setvQuantity(info, 0)
+					c.className = 'chip'
+					b.innerText = 'cancel'
+					c.append(info.name, b)
+					chps.append(c)
+				}
+				var c = info_lst.map(info => [ordr_data.pltes
+				[plte_idx][info.shortname], info.name]).filter(v => v[0])
+				plte_dct[plte_idx].getElementsByClassName('plte-info')[0].innerText =
+					c.map(a => `[${a[0]}] ${a[1]}`).join(', ') || 'Empty Order'
+				if (!c.length) nxtb.disabled = true
+			}
+		}
+
+		function setvQuantity(info, v, plte = ordr_data.pltes[plte_idx]) {
+			if (v < 0 | (info.limit && v > info.limit)) return
+			var n = info.shortname
+			if (v) plte[n] = v
+			else if (n in plte)
+				delete plte[n]
+			if (plte == ordr_data.pltes[plte_idx])
+				showQuantity(info, v)
+		}
+
+		function incrQuantity(info, d, plte = ordr_data.pltes[plte_idx]) {
+			setvQuantity(info, ~~plte[info.shortname] + d, plte)
+			return false
+		}
+
+		function showPlte(n) {
+			for (let info of info_lst)
+				showQuantity(info, ordr_data.pltes[n][info.shortname] || 0)
+			tlbl.innerText = `Table #${ordr_data.tble} - Plate #${n}`
+		}
+
+		function setvPlte(n) {
+			if (!(n in ordr_data.pltes)) return
+			showPlte(plte_idx = n)
+		}
+
+		function showAddPlte(n) {
+			var elem = document.createElement('button')
+			var l1 = document.createElement('span')
+			var l2 = document.createElement('span')
+			var l3 = document.createElement('button')
+			l1.className = 'plte-name'
+			l2.className = 'plte-info'
+			l3.className = 'plte-rem'
+			l1.innerText = `Plate #${n}`
+			l3.innerText = 'delete'
+			elem.append(l1, l2, l3)
+			elem.className = 'plte-item'
+			elem.onclick = () => {
+				plo.classList.add('invisible')
+				setvPlte(n)
+			}
+			l3.onclick = (event) => {
+				event.stopPropagation()
+				if (!setvRemPlte(n))
+					plo.classList.add('invisible')
+			}
+			plte_dct[n] = elem
+			pls.append(elem)
+		}
+
+		function setvAddPlte() {
+			var i = nxt_plte++
+			ordr_data.pltes[i] = {}
+			showAddPlte(i)
+			return i
+		}
+
+		function showRemPlte(n) {
+			plte_dct[n].remove()
+			delete plte_dct[n]
+		}
+
+		function setvRemPlte(i) {
+			if (!(i in ordr_data.pltes)) return
+			delete ordr_data.pltes[i]
+			showRemPlte(i)
+			if (--nxt_plte in ordr_data.pltes)
+				nxt_plte++
+			var ks = Object.keys(ordr_data.pltes), l = ks.length
+			if (i == plte_idx)
+				if (l > 0) setvPlte(ks.pop())
+				else setvClrPltes()
+			return l
+		}
+
+		function showClrPltes() {
+			for (var n in plte_dct) {
+				plte_dct[n].remove()
+				delete plte_dct[n]
+			}
+		}
+
+		function setvClrPltes() {
+			for (var n in ordr_data.pltes)
+				delete ordr_data.pltes[n]
+			nxt_plte = 1
+			showClrPltes()
+			setvPlte(setvAddPlte())
+		}
+
+		cdb.onclick = async () => {
+			var r = await fetch(`/lkp_code?code=${cdf.value}`)
+			var j = await r.json()
+			if (j[0]) {
+				ordr_data.code = cdf.value
+				ordr_data.tble = j[0].tble
+				cdo.classList.add('invisible')
+				setvClrPltes()
+			}
+			else cdl.hidden = false
+		}
+		cdf.onkeydown = () => cdl.hidden = true
+		cdf.onkeyup = () => {
+			if (event.keyCode == 13) {
+				event.preventDefault()
+				cdb.click()
+			}
+		}
+		setTimeout(() => {
+			document.getElementById('code-field').focus()
+		}, 1000)
+
+		bkb.onclick = () => {
+			cdo.classList.remove('invisible')
+		}
+
+		nxtb.onclick = () => {
+			if (!Object.keys(chip_dct).length)
+				sndb.animate([{ backgroundColor: 'red' }, { backgroundColor: '#f00d1e' }], 1337)
+			else plo.classList.remove('invisible')
+		}
+
+		plo.onclick = () => {
+			plo.classList.add('invisible')
+		}
+
+		addb.onclick = () => {
+			setvPlte(setvAddPlte())
+			plo.classList.add('invisible')
+		}
+
+		clrb.onclick = () => {
+			setvClrPltes()
+			plo.classList.add('invisible')
+		}
+
+		sndb.onclick = () => {
+			fetch('/snd_ordr', { method: 'POST', body: JSON.stringify(ordr_data) })
+			sndb.animate([{ backgroundColor: 'mediumseagreen' }, { backgroundColor: '#f00d1e' }], 1337)
+			setvClrPltes()
+		}
+
+		fetch('/ls_menu').then(async j => {
+			info_lst.push(...await j.json())
+			for (let info of info_lst) {
+				let n = info.shortname
+				let itm = document.createElement('div')
+				let ttl = document.createElement('div')
+				let inc = document.createElement('div')
+				let cnt = document.createElement('span')
+				let unt = document.createElement('span')
+				let add = document.createElement('button')
+				let rem = document.createElement('button')
+				let img = document.createElement('img')
+				elem_dct[n] = [itm, ttl, inc, cnt, add, rem, img]
+
+				img.className = 'menu-img'
+				itm.className = 'menu-itm'
+				ttl.className = 'menu-ttl'
+				inc.className = 'menu-inc'
+				cnt.className = 'menu-cnt'
+				unt.className = 'menu-unt'
+				add.className = 'menu-add'
+				rem.className = 'menu-rem'
+				add.innerText = 'arrow_drop_up'
+				rem.innerText = 'arrow_drop_down'
+				img.src = info.image
+
+				add.onclick = () => incrQuantity(info, +1)
+				rem.onclick = () => incrQuantity(info, -1)
+
+				cnt.innerText = '0'
+				unt.innerText = info.unit
+				ttl.innerText = info.name
+
+				ttl.append(inc)
+				inc.append(rem, cnt, unt, add)
+				itm.append(ttl, img)
+				grid.appendChild(itm)
+			}
+		});
+	</script>
+</body>
