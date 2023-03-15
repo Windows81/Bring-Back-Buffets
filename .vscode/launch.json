@@ -13,7 +13,7 @@
 			],
 			"program": "${workspaceFolder}\\main.js",
 			"env": {
-				"port": "80",
+				"port": "666",
 				"table_count": "12",
 				"code": null //"666"
 			}
