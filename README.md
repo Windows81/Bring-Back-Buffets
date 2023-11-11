@@ -47,29 +47,29 @@ Sesame Balls,SESAMEBL,,sp.,http://2.bp.blogspot.com/_tbCqVl2yqf8/Sdfjr2TFUGI/AAA
 ### localhost:3000/cashier
 
 <p align="center">
-  <img src="screenshots/cashier_list.png" />
+  <img width="360px" src="screenshots/cashier_list.png" />
 </p>
 
 ### localhost:3000/menu
 
 <p align="center">
-  <img src="screenshots/customer_init.png" />
+  <img width="360px" src="screenshots/customer_init.png" />
 </p>
 
 <p align="center">
-  <img src="screenshots/customer_code_entered.png" />
+  <img width="360px" src="screenshots/customer_code_entered.png" />
 </p>
 
 <p align="center">
-  <img src="screenshots/customer_selection.png" />
+  <img width="360px" src="screenshots/customer_selection.png" />
 </p>
 
 <p align="center">
-  <img src="screenshots/customer_confirmation.png" />
+  <img width="360px" src="screenshots/customer_confirmation.png" />
 </p>
 
 ### localhost:3000/display
 
 <p align="center">
-  <img src="screenshots/expedite_order.png" />
+  <img width="640px" src="screenshots/expedite_order.png" />
 </p>
