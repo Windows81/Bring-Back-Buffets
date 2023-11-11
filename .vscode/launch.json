@@ -5,7 +5,7 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"type": "pwa-node",
+			"type": "node",
 			"request": "launch",
 			"name": "Launch Program",
 			"skipFiles": [
@@ -13,7 +13,7 @@
 			],
 			"program": "${workspaceFolder}\\main.js",
 			"env": {
-				"port": "666",
+				"port": "3000",
 				"table_count": "12",
 				"code": null //"666"
 			}
