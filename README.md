@@ -1,4 +1,4 @@
-*As of 2022-07-06, I have no intention to bring this project back to the limelight. I designed Bring Back Buffets to address buffet closures dring Covid closures in early 2021. This was before vaccines were available. Though the codebase was complete enough to work somewhere between a development and a production environment, I was not successful in advertising to buffet owners.*
+_As of 2022-07-06, I have no intention to bring this project back to the limelight. I designed Bring Back Buffets to address buffet closures dring Covid closures in early 2021. This was before vaccines were available. Though the codebase was complete enough to work somewhere between a development and a production environment, I was not successful in advertising to buffet owners._
 
 <h1 align="center">Let's "Bring Buffets Back to Business" with an in-house mobile ordering solution!</h1>
 
